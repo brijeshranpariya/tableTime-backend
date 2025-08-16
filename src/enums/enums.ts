@@ -1,0 +1,6 @@
+export enum STATUS_CODE {
+  INTERNAL_SERVER_ERR = 500,
+  SUCCESS = 200,
+  BAD_REQUEST = 400,
+  EXPIRED = 410,
+}
