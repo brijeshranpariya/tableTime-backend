@@ -16,16 +16,18 @@ export const verifyOtpService = async (req: Request, res: Response) => {
         .status(STATUS_CODE.BAD_REQUEST)
         .json({ message: "OTP you entered is invalid.", verified: false });
     }
-    const isValid = await verifyOtp(OTP);
+    const { isValid, token } = await verifyOtp(OTP, phoneNumber);
     if (!isValid) {
       res.status(STATUS_CODE.EXPIRED).json({
         messaage: "Your OTP has expired. Please request a new one.",
         verified: false,
       });
     } else {
-      res
-        .status(STATUS_CODE.SUCCESS)
-        .json({ message: "OTP verified successfully!", verified: true });
+      res.status(STATUS_CODE.SUCCESS).json({
+        message: "OTP verified successfully!",
+        verified: true,
+        token: token,
+      });
     }
   } catch (err) {
     console.log("Error while verifying the OTP:", err);

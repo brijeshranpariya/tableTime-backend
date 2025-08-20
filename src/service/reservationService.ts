@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { STATUS_CODE } from "../enums/enums.js";
 import { reserveRestaurant } from "../repository/reservationRepo.js";
 import { isValidPhoneNumber } from "../utils/helper.js";
-import { statSync } from "fs";
 
 export const reserveRestaurantService = async (req: Request, res: Response) => {
   try {

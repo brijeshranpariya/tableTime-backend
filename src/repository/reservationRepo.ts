@@ -8,8 +8,14 @@ export const reserveRestaurant = async (
 ) => {
   try {
     await pool.query("BEGIN");
-    const { firstName, lastName, phoneNumber, arrivalTime, numberOfGuest } =
-      reservationDetails;
+    const {
+      additionalNote,
+      countryCode,
+      tableCapacity,
+      phoneNumber,
+      expectedArrivalTime,
+      numberOfGuest,
+    } = reservationDetails;
     const result = await pool.query(
       `select customer_id from customers where phone_number = ($1)`,
       [registeredPhoneNumber]

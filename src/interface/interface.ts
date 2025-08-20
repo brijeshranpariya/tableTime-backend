@@ -1,7 +1,8 @@
 export interface Reservation {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  arrivalTime: string;
+  additionalNote: string;
+  countryCode: string;
+  expectedArrivalTime: string;
   numberOfGuest: number;
+  phoneNumber: string;
+  tableCapacity: number;
 }

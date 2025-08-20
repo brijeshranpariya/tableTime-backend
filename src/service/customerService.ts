@@ -14,8 +14,9 @@ export const customerSignUpService = async (req: Request, res: Response) => {
         .status(STATUS_CODE.BAD_REQUEST)
         .json({ message: "Enter a valid phone number to continue." });
     }
-    
+
     const { otp, expirationTime } = await customerSignUp(phoneNumber);
+
     res.status(STATUS_CODE.SUCCESS).json({
       message: "OTP Generated successfully!",
       OTP: otp,

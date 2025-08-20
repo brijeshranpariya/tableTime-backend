@@ -8,15 +8,21 @@ import paymentRoutes from "./paymentRoutes.js";
 import reservationRoutes from "./reservationRoutes.js";
 import restaurantTableRoutes from "./restaurantTableRoutes.js";
 import restaurantsRoutes from "./restaurantsRoutes.js";
+import { authenticationToken } from "../service/AuthenticationService.js";
 const router = Router();
 router.use("/customers", customerRoutes);
-router.use("/favorite", favoriteRoutes);
-router.use("/menu-items", menuItemsRoutes);
-router.use("/order-items", orderItemsRoutes);
-router.use("/orders", orderItemsRoutes);
+router.use(
+  "/favorite",
+  authenticationToken,
+  authenticationToken,
+  favoriteRoutes
+);
+router.use("/menu-items", authenticationToken, menuItemsRoutes);
+router.use("/order-items", authenticationToken, orderItemsRoutes);
+router.use("/orders", authenticationToken, orderItemsRoutes);
 router.use("/otp-verification", otpVerificationRoutes);
-router.use("/payment", paymentRoutes);
-router.use("/reservation", reservationRoutes);
-router.use("/restaurant-table", restaurantTableRoutes);
-router.use("/restaurants", restaurantsRoutes);
+router.use("/payment", authenticationToken, paymentRoutes);
+router.use("/reservation", authenticationToken, reservationRoutes);
+router.use("/restaurant-table", authenticationToken, restaurantTableRoutes);
+router.use("/restaurants", authenticationToken, restaurantsRoutes);
 export default router;

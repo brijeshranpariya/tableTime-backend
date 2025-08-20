@@ -1,5 +1,5 @@
 import { pool } from "./../db.js";
-import { v4 as uuidv4 } from "uuid";
+
 export const customerSignUp = async (phoneNumber: string) => {
   try {
     await pool.query("BEGIN");
@@ -7,27 +7,31 @@ export const customerSignUp = async (phoneNumber: string) => {
     const existanceResult = await checkCustomerExist(phoneNumber);
     let expirationTime;
     let result;
+    let customerId;
     if (!existanceResult?.isExist) {
       result = await pool.query(
         `insert into customers ( phone_number, is_verified) values ($1, $2) returning customer_id`,
         [phoneNumber, false]
       );
-      const customerId = result.rows[0].customer_id;
+      customerId = result.rows[0].customer_id;
       if (result) {
         result = await pool.query(
-          `insert into otp_varification ( customer_id ,otp_code, expiration_time,used) values ($1, $2, now() + interval '90 seconds', $3)  RETURNING otp_id, customer_id, otp_code, expiration_time, used`,
+          `insert into otp_varification ( customer_id ,otp_code, expiration_time,used) values ($1, $2, now() + interval '180 minutes', $3)  RETURNING otp_id, customer_id, otp_code, expiration_time, used`,
           [customerId, otp, false]
         );
         expirationTime = result.rows[0].expiration_time;
         otp = result.rows[0].otp_code;
       }
     } else {
-      const customerId = existanceResult.result[0].customer_id;
+      customerId = existanceResult.result[0].customer_id;
       result = await pool.query(
         `update otp_varification set otp_code = ($1),used = ($2),expiration_time =now() + interval '90 seconds' where customer_id = ($3) RETURNING otp_id, customer_id, otp_code, expiration_time, used`,
         [otp, false, customerId]
       );
+      expirationTime = result.rows[0].expiration_time;
+      otp = result.rows[0].otp_code;
     }
+   
     await pool.query("COMMIT");
     return { otp, expirationTime };
   } catch (err) {

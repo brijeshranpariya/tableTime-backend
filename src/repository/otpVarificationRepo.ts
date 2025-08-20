@@ -1,6 +1,10 @@
 import { pool } from "../db.js";
+import jwt, { Secret } from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+const JWT_SECRET_KEY: Secret = process.env.JWT_SECRET as string;
 
-export const verifyOtp = async (otp: string) => {
+export const verifyOtp = async (otp: string, phoneNumber: string) => {
   try {
     await pool.query("BEGIN");
     let result = await pool.query(
@@ -19,8 +23,13 @@ export const verifyOtp = async (otp: string) => {
         `update customers set is_verified = ($1) where customer_id = ($2)`,
         [true, customerId]
       );
+    const token = jwt.sign(
+      { id: customerId, phone: phoneNumber },
+      JWT_SECRET_KEY,
+      { expiresIn: "3h" }
+    );
     await pool.query("COMMIT");
-    return isValid;
+    return { isValid, token };
   } catch (err) {
     await pool.query("ROLLBACK");
     console.error("Error verifying OTP:", err);
