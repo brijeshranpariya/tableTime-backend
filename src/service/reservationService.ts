@@ -6,12 +6,18 @@ import { isValidPhoneNumber } from "../utils/helper.js";
 export const reserveRestaurantService = async (req: Request, res: Response) => {
   try {
     const { reservationDetails, registeredPhoneNumber } = req.body;
+    const customerId = req.user?.id;
+
     if (!isValidPhoneNumber(reservationDetails.phoneNumber)) {
       res
         .status(STATUS_CODE.BAD_REQUEST)
         .json({ message: "Invalid Phone Number" });
     }
-    await reserveRestaurant(reservationDetails, registeredPhoneNumber);
+    await reserveRestaurant(
+      reservationDetails,
+      registeredPhoneNumber,
+      customerId
+    );
     res
       .status(STATUS_CODE.SUCCESS)
       .json({ message: "Table reserved successfully!" });
