@@ -1,3 +1,4 @@
+import { sendSMS } from "../utils/twilioServices.js";
 import { pool } from "./../db.js";
 
 export const customerSignUp = async (phoneNumber: string) => {
@@ -16,7 +17,7 @@ export const customerSignUp = async (phoneNumber: string) => {
       customerId = result.rows[0].customer_id;
       if (result) {
         result = await pool.query(
-          `insert into otp_varification ( customer_id ,otp_code, expiration_time,used) values ($1, $2, now() + interval '180 minutes', $3)  RETURNING otp_id, customer_id, otp_code, expiration_time, used`,
+          `insert into otp_varification ( customer_id ,otp_code, expiration_time,used) values ($1, $2, now() + interval '10 minutes', $3)  RETURNING otp_id, customer_id, otp_code, expiration_time, used`,
           [customerId, otp, false]
         );
         expirationTime = result.rows[0].expiration_time;
@@ -31,7 +32,7 @@ export const customerSignUp = async (phoneNumber: string) => {
       expirationTime = result.rows[0].expiration_time;
       otp = result.rows[0].otp_code;
     }
-   
+    await sendSMS(otp);
     await pool.query("COMMIT");
     return { otp, expirationTime };
   } catch (err) {

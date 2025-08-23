@@ -1,6 +1,7 @@
 import { pool } from "../db.js";
 import jwt, { Secret } from "jsonwebtoken";
 import dotenv from "dotenv";
+import { sendSMS } from "../utils/twilioServices.js";
 dotenv.config();
 const JWT_SECRET_KEY: Secret = process.env.JWT_SECRET as string;
 
@@ -12,7 +13,8 @@ export const verifyOtp = async (otp: string, phoneNumber: string) => {
       [otp]
     );
     const expirationTime = result.rows[0].expiration_time;
-    const isValid = new Date(expirationTime) > new Date();
+    const isUsed = result.rows[0].used;
+    const isValid = new Date(expirationTime) > new Date() && isUsed === false;
     result = await pool.query(
       `update otp_varification set used = ($1) where otp_code = ($2) returning customer_id`,
       [true, otp]
@@ -21,7 +23,7 @@ export const verifyOtp = async (otp: string, phoneNumber: string) => {
     if (customerId)
       await pool.query(
         `update customers set is_verified = ($1) where customer_id = ($2)`,
-        [true, customerId]
+        [isValid, customerId]
       );
     const token = jwt.sign(
       { id: customerId, phone: phoneNumber },
@@ -53,6 +55,7 @@ export const resendOtp = async (phoneNumber: string) => {
     newOtp = result.rows[0].otp_code;
     await pool.query("COMMIT");
     if (newOtp) {
+      await sendSMS(newOtp);
       return newOtp;
     }
   } catch (err) {
