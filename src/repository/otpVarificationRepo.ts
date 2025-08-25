@@ -55,7 +55,7 @@ export const resendOtp = async (phoneNumber: string) => {
     newOtp = result.rows[0].otp_code;
     await pool.query("COMMIT");
     if (newOtp) {
-      await sendSMS(newOtp);
+      await sendSMS(newOtp, phoneNumber);
       return newOtp;
     }
   } catch (err) {

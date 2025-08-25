@@ -32,7 +32,7 @@ export const customerSignUp = async (phoneNumber: string) => {
       expirationTime = result.rows[0].expiration_time;
       otp = result.rows[0].otp_code;
     }
-    await sendSMS(otp);
+    await sendSMS(otp,phoneNumber);
     await pool.query("COMMIT");
     return { otp, expirationTime };
   } catch (err) {
